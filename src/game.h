@@ -15,6 +15,8 @@ class Game {
     bool IsRunning() { return mRunning; }
 
    private:
+    Ray mLastRay;
+
     int mScreenW, mScreenH;
 
     bool mRunning = true;

@@ -26,6 +26,9 @@ void synthrush::Game::Update(float dT) {
     Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 0};
 
     mCam.target = Vector3Lerp(mCam.target, camTarget, 10 * dT);
+
+    mLastRay = GetMouseRay(mousePos, mCam);
+    mLastRay.position = {0, 0, 0};
 }
 
 static void DrawGroundGrid(float off) {
@@ -47,6 +50,8 @@ static void DrawGroundGrid(float off) {
     }
 }
 
+#include <string>
+
 void synthrush::Game::Render(float dT) {
     BeginDrawing();
     ClearBackground(BLACK);
@@ -56,6 +61,10 @@ void synthrush::Game::Render(float dT) {
     DrawGroundGrid(off);
     off += dT * 10;
 
+    DrawRay(mLastRay, BLUE);
+
     EndMode3D();
+
+    DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 32, WHITE);
     EndDrawing();
 }
