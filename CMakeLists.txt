@@ -16,3 +16,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE
   raylib
 )
+
+if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+  target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
