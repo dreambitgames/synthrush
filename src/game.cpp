@@ -1,11 +1,13 @@
 #include "game.h"
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include <cmath>
 
-synthrush::Game::Game() {
-    InitWindow(1920, 1080, "[SYNTHRUSH]");
+synthrush::Game::Game(int w, int h) : mScreenW(w), mScreenH(h) {
+    InitWindow(w, h, "[SYNTHRUSH]");
+    ToggleFullscreen();
 
     mCam.position = {0, 5, -10};
     mCam.target = {0, 5, 0};
@@ -18,7 +20,13 @@ synthrush::Game::Game() {
 
 synthrush::Game::~Game() { CloseWindow(); }
 
-void synthrush::Game::Update(float dT) {}
+void synthrush::Game::Update(float dT) {
+    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePosNormalied = {2 * mousePos.x / mScreenW - 1, 2 * mousePos.y / mScreenH - 1};
+    Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 0};
+
+    mCam.target = Vector3Lerp(mCam.target, camTarget, 10 * dT);
+}
 
 static void DrawGroundGrid(float off) {
     const float gridSpacing = 3.0f;

@@ -6,7 +6,7 @@ namespace synthrush {
 
 class Game {
    public:
-    Game();
+    Game(int w, int h);
     ~Game();
 
     void Update(float dT);
@@ -15,6 +15,8 @@ class Game {
     bool IsRunning() { return mRunning; }
 
    private:
+    int mScreenW, mScreenH;
+
     bool mRunning = true;
     Camera3D mCam{};
 };
