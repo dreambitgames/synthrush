@@ -15,7 +15,11 @@ synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
     ChangeScene(new GameScene(this));
 }
 
-synthrush::Game::~Game() { CloseWindow(); }
+synthrush::Game::~Game() {
+    if (mCurrentScene)
+        delete mCurrentScene;
+    CloseWindow();
+}
 
 void synthrush::Game::Update(float dT) { mCurrentScene->Update(dT); }
 
