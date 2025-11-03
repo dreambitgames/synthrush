@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-synthrush::Game::Game(int w, int h) : mScreenW(w), mScreenH(h), mTestEnemy({3, 3, 10}) {
+synthrush::Game::Game(int w, int h) : mScreenW(w), mScreenH(h), mTestEnemy({3, 5, 30}) {
     InitWindow(w, h, "[SYNTHRUSH]");
     ToggleFullscreen();
 
