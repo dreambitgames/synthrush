@@ -11,6 +11,11 @@ add_executable(${PROJECT_NAME}
 
   src/game.h
   src/game.cpp
+
+  src/entity.h 
+
+  src/entities/enemy.cpp
+  src/entities/enemy.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

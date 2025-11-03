@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-synthrush::Game::Game(int w, int h) : mScreenW(w), mScreenH(h) {
+synthrush::Game::Game(int w, int h) : mScreenW(w), mScreenH(h), mTestEnemy({3, 3, 10}) {
     InitWindow(w, h, "[SYNTHRUSH]");
     ToggleFullscreen();
 
@@ -26,9 +26,11 @@ void synthrush::Game::Update(float dT) {
     Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 0};
 
     mCam.target = Vector3Lerp(mCam.target, camTarget, 10 * dT);
+    // UpdateCamera(&mCam, CAMERA_FREE);
 
     mLastRay = GetMouseRay(mousePos, mCam);
     mLastRay.position = {0, 0, 0};
+    mTestEnemy.Update(dT);
 }
 
 static void DrawGroundGrid(float off) {
@@ -61,6 +63,7 @@ void synthrush::Game::Render(float dT) {
     DrawGroundGrid(off);
     off += dT * 10;
 
+    mTestEnemy.Render(dT);
     DrawRay(mLastRay, BLUE);
 
     EndMode3D();

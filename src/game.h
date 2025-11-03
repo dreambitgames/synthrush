@@ -2,6 +2,8 @@
 
 #include <raylib.h>
 
+#include "entities/enemy.h"
+
 namespace synthrush {
 
 class Game {
@@ -15,6 +17,8 @@ class Game {
     bool IsRunning() { return mRunning; }
 
    private:
+    Enemy mTestEnemy;
+
     Ray mLastRay;
 
     int mScreenW, mScreenH;
