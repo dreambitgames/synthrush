@@ -6,6 +6,8 @@ set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 add_subdirectory(src/vendor/raylib)
 
+add_subdirectory(src/vendor/json)
+
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
@@ -24,6 +26,7 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
   raylib
+  nlohmann_json
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")

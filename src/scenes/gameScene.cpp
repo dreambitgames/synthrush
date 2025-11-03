@@ -27,6 +27,8 @@ void synthrush::GameScene::Update(float dT) {
 
     mShootRay = GetMouseRay(mousePos, mCam);
     mShootRay.position = {0, 0, 0};
+
+    mGameTime += dT;
 }
 
 static void DrawGroundGrid(float off) {

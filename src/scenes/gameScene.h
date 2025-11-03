@@ -15,6 +15,8 @@ class GameScene : public Scene {
     float mapMoveSpeed = 10;
 
    private:
+    float mGameTime = 0;
+
     Ray mShootRay;
     Camera3D mCam;
 };
