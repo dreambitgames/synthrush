@@ -3,6 +3,7 @@
 #include <raylib.h>
 
 #include "entities/enemy.h"
+#include "scene.h"
 
 namespace synthrush {
 
@@ -14,17 +15,21 @@ class Game {
     void Update(float dT);
     void Render(float dT);
 
+    void ChangeScene(Scene *newScene) {
+        if (mCurrentScene)
+            delete mCurrentScene;
+        mCurrentScene = newScene;
+    }
+
     bool IsRunning() { return mRunning; }
 
+    int screenW, screenH;
+
    private:
-    Enemy mTestEnemy;
-
-    Ray mLastRay;
-
-    int mScreenW, mScreenH;
+    void EndGame() { mRunning = false; }
 
     bool mRunning = true;
-    Camera3D mCam{};
+    Scene *mCurrentScene = nullptr;
 };
 
 }  // namespace synthrush

@@ -9,13 +9,17 @@ add_subdirectory(src/vendor/raylib)
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
-  src/game.h
   src/game.cpp
-
-  src/entity.h 
+  src/game.h
 
   src/entities/enemy.cpp
   src/entities/enemy.h
+
+  src/scenes/gameScene.cpp
+  src/scenes/gameScene.h
+
+  src/entity.h 
+  src/scene.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
