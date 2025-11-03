@@ -12,6 +12,8 @@ class GameScene : public Scene {
     virtual void Update(float dT) override;
     virtual void Render(float dT) override;
 
+    float mapMoveSpeed = 10;
+
    private:
     Ray mShootRay;
     Camera3D mCam;

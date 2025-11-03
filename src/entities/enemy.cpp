@@ -5,11 +5,13 @@
 
 #include <cmath>
 
-synthrush::Enemy::Enemy(Vector3 pos) : Entity(pos) { mColor = BLUE; }
+#include "../scenes/gameScene.h"
+
+synthrush::Enemy::Enemy(GameScene *gs, Vector3 pos) : Entity(gs, pos) { mColor = BLUE; }
 
 synthrush::Enemy::~Enemy() {}
 
-void synthrush::Enemy::Update(float dT) { mPosition.z -= dT * 10; }
+void synthrush::Enemy::Update(float dT) { mPosition.z -= dT * mScene->mapMoveSpeed; }
 
 void synthrush::Enemy::Render(float dT) {
     rlPushMatrix();

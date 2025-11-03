@@ -4,15 +4,18 @@
 
 namespace synthrush {
 
+class GameScene;
+
 class Entity {
    public:
-    Entity(Vector3 mPosition) : mPosition(mPosition) {}
+    Entity(GameScene *scene, Vector3 position) : mPosition(position), mScene(scene) {}
     virtual ~Entity() {}
 
     virtual void Update(float dT) {}
     virtual void Render(float dT) {}
 
    protected:
+    GameScene *mScene;
     Vector3 mPosition;
 };
 

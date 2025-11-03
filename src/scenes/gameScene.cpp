@@ -54,7 +54,7 @@ void synthrush::GameScene::Render(float dT) {
 
     static float off = 0;
     DrawGroundGrid(off);
-    off += dT * 10;
+    off += dT * mapMoveSpeed;
 
     DrawRay(mShootRay, BLUE);
 
