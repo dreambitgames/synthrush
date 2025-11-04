@@ -15,8 +15,13 @@ int main() {
     RenderTexture2D target = LoadRenderTexture(virtualWidth, virtualHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
+    double lastTime = GetTime();
+
     while (game.IsRunning() && !WindowShouldClose()) {
-        float dT = GetFrameTime();
+        double currentTime = GetTime();
+        float dT = (float)(currentTime - lastTime);
+        lastTime = currentTime;
+
         game.Update(dT);
         BeginTextureMode(target);
         game.Render(dT);
