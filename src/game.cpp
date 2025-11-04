@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <random>
 
 #include "levelData.h"
 #include "scenes/gameScene.h"
@@ -13,6 +14,9 @@ synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
     InitWindow(w, h, "[SYNTHRUSH]");
     ToggleFullscreen();
     SetTargetFPS(60);
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    mRng = std::mt19937(seed);
 
     std::ifstream f("data/levels/test.json");
     json data = json::parse(f);
@@ -33,4 +37,8 @@ void synthrush::Game::Render(float dT) {
     BeginDrawing();
     mCurrentScene->Render(dT);
     EndDrawing();
+}
+
+float synthrush::Game::Random(float min, float max) {
+    return std::uniform_real_distribution<float>(min, max)(mRng);
 }

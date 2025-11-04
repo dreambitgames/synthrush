@@ -2,6 +2,8 @@
 
 #include <raylib.h>
 
+#include <random>
+
 #include "entities/enemy.h"
 #include "scene.h"
 
@@ -23,10 +25,14 @@ class Game {
 
     bool IsRunning() { return mRunning; }
 
+    float Random(float min, float max);
+
     int screenW, screenH;
 
    private:
     void EndGame() { mRunning = false; }
+
+    std::mt19937 mRng;
 
     bool mRunning = true;
     Scene *mCurrentScene = nullptr;

@@ -37,7 +37,7 @@ void synthrush::GameScene::Update(float dT) {
 
     if (!mDoneBeats)
         if (mGameTime >= mLevelData.beats[mLevelDataBeatIterator]) {
-            SpawnEntity(new Enemy(this, {0, 5, 30}));
+            SpawnEntity(new Enemy(this, {mGame->Random(-5, 5), mGame->Random(3, 5), 30}));
             ++mLevelDataBeatIterator;
 
             if (mLevelDataBeatIterator >= mLevelData.beats.size())
