@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(synthrush LANGUAGES CXX)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 add_subdirectory(src/vendor/raylib)
@@ -32,3 +34,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(CMAKE_C_COMPILER_ID MATCHES "GNU")
   target_link_libraries(${PROJECT_NAME} PRIVATE m)
 endif()
+
+
+set(DATA_DIR "${CMAKE_SOURCE_DIR}/data")
+set(OUTPUT_DATA_DIR "${CMAKE_BINARY_DIR}/data")
+add_custom_target(copyData ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${DATA_DIR}" "${OUTPUT_DATA_DIR}"
+)
+add_dependencies(${PROJECT_NAME} copyData)

@@ -4,7 +4,9 @@
 #include <raymath.h>
 
 #include <cmath>
+#include <fstream>
 
+#include "levelData.h"
 #include "scenes/gameScene.h"
 
 synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
@@ -12,7 +14,11 @@ synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
     ToggleFullscreen();
     SetTargetFPS(60);
 
-    ChangeScene(new GameScene(this));
+    std::ifstream f("data/levels/test.json");
+    json data = json::parse(f);
+    LevelData testLevel(data);
+
+    ChangeScene(new GameScene(this, testLevel));
 }
 
 synthrush::Game::~Game() {

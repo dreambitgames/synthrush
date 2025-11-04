@@ -1,7 +1,7 @@
 {
-  levelName: "Test Level",
-  audioFile: "test.wav",
-  beats: [
-    0, 1, 2, 3, 4
+  "levelName": "Test Level",
+  "audioFile": "test.wav",
+  "beats": [
+    1, 2, 3, 4, 5
   ]
 }
