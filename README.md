@@ -14,3 +14,14 @@ are licensed under the **Creative Commons Attribution-ShareAlike 4.0 Internation
 
 A copy of that license is included in `LICENSES/CC-BY-SA-4.0.txt`
 and is also available online at <https://creativecommons.org/licenses/by-sa/4.0>
+
+### Third-Party Libraries
+This project uses the following open-source libraries:
+
+- [raylib](https://raylib.com) - [zlib License](https://github.com/raysan5/raylib/blob/master/LICENSE)
+  Copyright (c) 2013-2025 Ramon Santamaria (@raysan5)
+
+- [JSON for Modern C++](https://github.com/nlohmann/json) - [MIT License](https://github.com/nlohmann/json/blob/master/LICENSE.MIT)
+  Copyright (c) 2013-2025 Niels Lohmann
+
+These libraries are compatible with GPLv3.
