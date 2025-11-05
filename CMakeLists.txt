@@ -46,3 +46,11 @@ add_custom_target(copyData ALL
             "${DATA_DIR}" "${OUTPUT_DATA_DIR}"
 )
 add_dependencies(${PROJECT_NAME} copyData)
+
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/assets")
+set(OUTPUT_ASSETS_DIR "${CMAKE_BINARY_DIR}/assets")
+add_custom_target(copyAssets ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${ASSETS_DIR}" "${OUTPUT_ASSETS_DIR}"
+)
+add_dependencies(${PROJECT_NAME} copyAssets)

@@ -24,6 +24,9 @@ class GameScene : public Scene {
     float mapMoveSpeed = 30;
 
    private:
+    float mShootEffectFactor = 0;
+    Color mScoreTextColor = WHITE;
+
     float mGameScore = 0;
 
     Sound mMusic;

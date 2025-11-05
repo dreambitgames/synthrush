@@ -25,3 +25,9 @@ This project uses the following open-source libraries:
   Copyright (c) 2013-2025 Niels Lohmann
 
 These libraries are compatible with GPLv3.
+
+### Fonts
+This project uses the following fonts:
+
+- [Zen Dots](https://fonts.google.com/specimen/Zen+Dots) - [OFL License](https://fonts.google.com/specimen/Zen+Dots/license)
+  Copyright (c) 2021 The Dots Project Authors

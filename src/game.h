@@ -27,6 +27,8 @@ class Game {
 
     int screenW, screenH;
 
+    Font mainFont;
+
    private:
     void EndGame() { mRunning = false; }
 

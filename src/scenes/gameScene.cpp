@@ -87,6 +87,9 @@ void synthrush::GameScene::Update(float dT) {
                                       return false;
                                   }),
                    mEnemies.end());
+
+    mShootEffectFactor = Lerp(mShootEffectFactor, 0, 3 * dT);
+    mScoreTextColor = ColorLerp(mScoreTextColor, WHITE, 3 * dT);
 }
 
 float synthrush::GameScene::CalculateShootScore(int beatN) {
@@ -97,12 +100,18 @@ void synthrush::GameScene::OnEnemyShot(int beatN) {
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
     mGameScore += CalculateShootScore(beatN);
+
+    mShootEffectFactor += 1;
+    mScoreTextColor = MAGENTA;
 }
 
 void synthrush::GameScene::OnEnemyMissed(int beatN) {
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
     mGameScore -= 1;
+
+    mShootEffectFactor = -0.3f;
+    mScoreTextColor = RED;
 }
 
 static void DrawGroundGrid(float off) {
@@ -141,5 +150,12 @@ void synthrush::GameScene::Render(float dT) {
     static Vector2 hudOffset{};
     hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
 
-    DrawText(std::to_string(mGameScore).c_str(), 10 + hudOffset.x, 10 + hudOffset.y, 32, WHITE);
+    DrawTextEx(mGame->mainFont, std::to_string(mGameScore).c_str(), Vector2Add(hudOffset, {10, 10}),
+               mShootEffectFactor * 10 + 24, 0, mScoreTextColor);
+
+    DrawTextPro(mGame->mainFont, "EXCELLENT!!!", Vector2Add(hudOffset, {70, 42}), {0, 0}, -5,
+                mShootEffectFactor * 6 + 12, 0, Fade(MAGENTA, mShootEffectFactor));
+
+    // DrawTextEx(mGame->mainFont, "EXCELLENT!!!", Vector2Add(hudOffset, {10, 50}),
+    //          mShootEffectFactor * 12 + 24, 0, Fade(MAGENTA, mShootEffectFactor));
 }

@@ -5,7 +5,6 @@
 
 #include <cmath>
 #include <fstream>
-#include <random>
 
 #include "levelData.h"
 #include "scenes/gameScene.h"
@@ -17,6 +16,8 @@ synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
 
     InitAudioDevice();
 
+    mainFont = LoadFont("assets/fonts/zendots.ttf");
+
     std::ifstream f("data/levels/test.json");
     json data = json::parse(f);
     LevelData testLevel(data);
@@ -27,6 +28,7 @@ synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
 synthrush::Game::~Game() {
     if (mCurrentScene)
         delete mCurrentScene;
+    UnloadFont(mainFont);
     CloseWindow();
 }
 
