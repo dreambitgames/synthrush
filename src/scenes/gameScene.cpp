@@ -10,6 +10,7 @@
 #include "../entities/enemy.h"
 #include "../entity.h"
 #include "../game.h"
+#include "../random.h"
 
 synthrush::GameScene::GameScene(Game *game, LevelData &data) : mLevelData(data), Scene(game) {
     mCam.position = {0, 5, 0};
@@ -24,24 +25,29 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data) : mLevelData(data),
         if (mLevelDataBeatIterator >= mLevelData.beats.size())
             mDoneBeats = true;
     }
+
+    mEnemies[0]->SetMarked();
+
+    mMusic = LoadSound(data.audioFile.c_str());
+    PlaySound(mMusic);
 }
 
-synthrush::GameScene::~GameScene() {}
+synthrush::GameScene::~GameScene() { UnloadSound(mMusic); }
 
 void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
     float posX, posY;
 
-    if (mGame->Random(0, 1) > 0.5f)
-        posX = mGame->Random(-5, -1);
+    if (util::Random(0, 1) > 0.5f)
+        posX = util::Random(-5, -1);
     else
-        posX = mGame->Random(1, 5);
+        posX = util::Random(1, 5);
 
-    if (mGame->Random(0, 1) > 0.5f)
-        posY = mGame->Random(1, 5);
+    if (util::Random(0, 1) > 0.5f)
+        posY = util::Random(1, 5);
     else
-        posY = mGame->Random(6, 7);
+        posY = util::Random(6, 7);
 
-    SpawnEntity(new Enemy(
+    mEnemies.push_back(new Enemy(
         this,
         {posX, posY, 15 + mapMoveSpeed * mLevelData.beats[beatN] - mapMoveSpeed * mGameTime}));
 }
@@ -56,9 +62,8 @@ void synthrush::GameScene::Update(float dT) {
     // UpdateCamera(&mCam, CAMERA_FREE);
 
     mShootRay = GetMouseRay(mousePos, mCam);
-    mShootRay.position = {0, 0, 10};
 
-    for (Entity *ent : mEntities) ent->Update(dT);
+    for (Entity *ent : mEnemies) ent->Update(dT);
 
     mGameTime += dT;
 
@@ -69,6 +74,33 @@ void synthrush::GameScene::Update(float dT) {
             if (mLevelDataBeatIterator >= mLevelData.beats.size())
                 mDoneBeats = true;
         }
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        mEnemies[0]->CheckHit(mShootRay);
+
+    mEnemies.erase(std::remove_if(mEnemies.begin(), mEnemies.end(),
+                                  [](Enemy *e) {
+                                      if (e->NeedsDeletion()) {
+                                          delete e;
+                                          return true;
+                                      }
+                                      return false;
+                                  }),
+                   mEnemies.end());
+}
+
+float synthrush::GameScene::CalculateShootScore(int beatN) {
+    return 1 - Clamp(abs(mGameTime - mLevelData.beats[beatN]), 0, 1);
+}
+
+void synthrush::GameScene::OnEnemyShot() {
+    if (mEnemies.size() > 1)
+        mEnemies[1]->SetMarked();
+}
+
+void synthrush::GameScene::OnEnemyMissed() {
+    if (mEnemies.size() > 1)
+        mEnemies[1]->SetMarked();
 }
 
 static void DrawGroundGrid(float off) {
@@ -100,8 +132,7 @@ void synthrush::GameScene::Render(float dT) {
     DrawGroundGrid(off);
     off += dT * mapMoveSpeed;
 
-    DrawRay(mShootRay, BLUE);
-    for (Entity *ent : mEntities) ent->Render(dT);
+    for (Entity *ent : mEnemies) ent->Render(dT);
 
     EndMode3D();
 
@@ -110,5 +141,3 @@ void synthrush::GameScene::Render(float dT) {
 
     DrawText(std::to_string(mGameTime).c_str(), 10 + hudOffset.x, 10 + hudOffset.y, 32, WHITE);
 }
-
-void synthrush::GameScene::SpawnEntity(Entity *ent) { mEntities.push_back(ent); }

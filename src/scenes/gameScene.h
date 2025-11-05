@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "../entities/enemy.h"
 #include "../levelData.h"
 #include "../scene.h"
 
@@ -17,23 +18,33 @@ class GameScene : public Scene {
     virtual void Update(float dT) override;
     virtual void Render(float dT) override;
 
-    void SpawnEntity(Entity *ent);
+    void OnEnemyShot();
+    void OnEnemyMissed();
 
     float mapMoveSpeed = 30;
 
    private:
+    float mGameScore = 0;
+
+    Sound mMusic;
+
+    float CalculateShootScore(int beatN);
     void SpawnEnemyForBeatN(int beatN);
 
-    std::vector<Entity *> mEntities;
+    std::vector<Enemy *> mEnemies;
 
     LevelData mLevelData;
     int mLevelDataBeatIterator = 0;
+
     bool mDoneBeats = false;
+    bool mDoneMusic = false;
 
     float mGameTime = 0;
 
     Ray mShootRay;
     Camera3D mCam;
+
+    friend class Enemy;
 };
 
 }  // namespace synthrush

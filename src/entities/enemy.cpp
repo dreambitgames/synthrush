@@ -6,10 +6,19 @@
 
 #include <cmath>
 
+#include "../random.h"
 #include "../scenes/gameScene.h"
 
 synthrush::Enemy::Enemy(GameScene *gs, Vector3 pos) : Entity(gs, pos) {
-    mColor = BLUE;
+    mEnemyType = (Type)round(util::Random(0, 1));
+
+    switch (mEnemyType) {
+        case Type::BLUE_SPHERE:
+            mColor = BLUE;
+            break;
+        case Type::GREEN_BOX:
+            mColor = GREEN;
+    }
 
     mColor.a = 0;
 }
@@ -20,6 +29,11 @@ void synthrush::Enemy::Update(float dT) {
     mPosition.z -= dT * mScene->mapMoveSpeed;
 
     mEntryModifier = Lerp(mEntryModifier, 1, 5 * dT);
+
+    if (mPosition.z <= 1) {
+        Destroy();
+        mScene->OnEnemyMissed();
+    }
 }
 
 void synthrush::Enemy::Render(float dT) {
@@ -27,14 +41,38 @@ void synthrush::Enemy::Render(float dT) {
     rlTranslatef(mPosition.x, mPosition.y + 5 - 5 * mEntryModifier, mPosition.z);
     rlRotatef(GetTime() * 100, 1, 1, sinf(GetTime()));
 
-    DrawSphereWires({0, 0, 0}, 1, 7, 7, Fade(mColor, mEntryModifier));
-    DrawSphere(
-        {
-            0,
-            0,
-            0,
-        },
-        1, Fade(mColor, mEntryModifier * 0.6f));
+    float markedCoefficient = mMarked ? 1 : 0.3;
+
+    Color lineColor = Fade(mColor, mEntryModifier * markedCoefficient);
+    Color fillColor = Fade(lineColor, 0.6f);
+
+    switch (mEnemyType) {
+        case Type::BLUE_SPHERE:
+            DrawSphereWires({0, 0, 0}, 1, 7, 7, lineColor);
+            DrawSphere(
+                {
+                    0,
+                    0,
+                    0,
+                },
+                1, fillColor);
+            break;
+        case Type::GREEN_BOX:
+            DrawCubeWires({0, 0, 0}, 1, 1, 1, lineColor);
+            DrawCube({0, 0, 0}, 1, 1, 1, fillColor);
+            break;
+    }
 
     rlPopMatrix();
 }
+
+void synthrush::Enemy::CheckHit(Ray ray) {
+    RayCollision r = GetRayCollisionSphere(ray, mPosition, 1);
+    if (!r.hit)
+        return;
+
+    Destroy();
+    mScene->OnEnemyShot();
+}
+
+void synthrush::Enemy::Destroy() { Entity::Destroy(); }

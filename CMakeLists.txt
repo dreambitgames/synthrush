@@ -13,6 +13,9 @@ add_subdirectory(src/vendor/json)
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
+  src/random.cpp
+  src/random.h
+
   src/game.cpp
   src/game.h
 

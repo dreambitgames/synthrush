@@ -1,6 +1,6 @@
 {
   "levelName": "Test Level",
-  "audioFile": "test.wav",
+  "audioFile": "data/levels/test.wav",
   "beats": [
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10
   ]
