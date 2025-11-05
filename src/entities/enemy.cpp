@@ -46,20 +46,20 @@ void synthrush::Enemy::Render(float dT) {
     Color lineColor = Fade(mColor, mEntryModifier * markedCoefficient);
     Color fillColor = Fade(lineColor, 0.6f);
 
+    Vector3 center = {0, 0, 0};
+    float size = 1.0f;
+    constexpr int sphereRings = 7;
+    constexpr int sphereSlices = 7;
+
     switch (mEnemyType) {
         case Type::BLUE_SPHERE:
-            DrawSphereWires({0, 0, 0}, 1, 7, 7, lineColor);
-            DrawSphere(
-                {
-                    0,
-                    0,
-                    0,
-                },
-                1, fillColor);
+            DrawSphereWires(center, size, sphereRings, sphereSlices, lineColor);
+            DrawSphere(center, size, fillColor);
             break;
+
         case Type::GREEN_BOX:
-            DrawCubeWires({0, 0, 0}, 1, 1, 1, lineColor);
-            DrawCube({0, 0, 0}, 1, 1, 1, fillColor);
+            DrawCubeWires(center, size, size, size, lineColor);
+            DrawCube(center, size, size, size, fillColor);
             break;
     }
 
