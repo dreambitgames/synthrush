@@ -9,7 +9,7 @@
 #include "../random.h"
 #include "../scenes/gameScene.h"
 
-synthrush::Enemy::Enemy(GameScene *gs, Vector3 pos) : Entity(gs, pos) {
+synthrush::Enemy::Enemy(GameScene *gs, Vector3 pos, int beatN) : beatN(beatN), Entity(gs, pos) {
     mEnemyType = (Type)round(util::Random(0, 1));
 
     switch (mEnemyType) {
@@ -32,7 +32,7 @@ void synthrush::Enemy::Update(float dT) {
 
     if (mPosition.z <= 1) {
         Destroy();
-        mScene->OnEnemyMissed();
+        mScene->OnEnemyMissed(beatN);
     }
 }
 
@@ -72,7 +72,7 @@ void synthrush::Enemy::CheckHit(Ray ray) {
         return;
 
     Destroy();
-    mScene->OnEnemyShot();
+    mScene->OnEnemyShot(beatN);
 }
 
 void synthrush::Enemy::Destroy() { Entity::Destroy(); }

@@ -18,8 +18,8 @@ class GameScene : public Scene {
     virtual void Update(float dT) override;
     virtual void Render(float dT) override;
 
-    void OnEnemyShot();
-    void OnEnemyMissed();
+    void OnEnemyShot(int beatN);
+    void OnEnemyMissed(int beatN);
 
     float mapMoveSpeed = 30;
 

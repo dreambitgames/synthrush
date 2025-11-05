@@ -48,8 +48,8 @@ void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
         posY = util::Random(6, 7);
 
     mEnemies.push_back(new Enemy(
-        this,
-        {posX, posY, 15 + mapMoveSpeed * mLevelData.beats[beatN] - mapMoveSpeed * mGameTime}));
+        this, {posX, posY, 15 + mapMoveSpeed * mLevelData.beats[beatN] - mapMoveSpeed * mGameTime},
+        beatN));
 }
 
 void synthrush::GameScene::Update(float dT) {
@@ -93,14 +93,16 @@ float synthrush::GameScene::CalculateShootScore(int beatN) {
     return 1 - Clamp(abs(mGameTime - mLevelData.beats[beatN]), 0, 1);
 }
 
-void synthrush::GameScene::OnEnemyShot() {
+void synthrush::GameScene::OnEnemyShot(int beatN) {
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
+    mGameScore += CalculateShootScore(beatN);
 }
 
-void synthrush::GameScene::OnEnemyMissed() {
+void synthrush::GameScene::OnEnemyMissed(int beatN) {
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
+    mGameScore -= 1;
 }
 
 static void DrawGroundGrid(float off) {
@@ -139,5 +141,5 @@ void synthrush::GameScene::Render(float dT) {
     static Vector2 hudOffset{};
     hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
 
-    DrawText(std::to_string(mGameTime).c_str(), 10 + hudOffset.x, 10 + hudOffset.y, 32, WHITE);
+    DrawText(std::to_string(mGameScore).c_str(), 10 + hudOffset.x, 10 + hudOffset.y, 32, WHITE);
 }

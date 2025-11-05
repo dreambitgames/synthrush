@@ -10,7 +10,7 @@ class Enemy : public Entity {
    public:
     enum class Type { BLUE_SPHERE, GREEN_BOX };
 
-    Enemy(GameScene *gs, Vector3 pos);
+    Enemy(GameScene *gs, Vector3 pos, int beatN);
     ~Enemy();
 
     virtual void Update(float dT) override;
@@ -21,6 +21,8 @@ class Enemy : public Entity {
     void CheckHit(Ray ray);
 
     virtual void Destroy() override;
+
+    int beatN;
 
    private:
     Type mEnemyType;
