@@ -13,6 +13,7 @@ class Enemy : public Entity {
     virtual void Render(float dT) override;
 
    private:
+    float mEntryModifier = 0;
     Color mColor;
 };
 

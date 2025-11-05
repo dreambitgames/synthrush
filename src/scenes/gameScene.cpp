@@ -2,6 +2,7 @@
 
 #include <raymath.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <string>
 
@@ -15,9 +16,34 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data) : mLevelData(data),
     mCam.up = {0, 1, 0};
     mCam.fovy = 45;
     mCam.projection = CAMERA_PERSPECTIVE;
+
+    for (int i = 0; i < std::min((int)data.beats.size(), 3); ++i) {
+        SpawnEnemyForBeatN(i);
+        ++mLevelDataBeatIterator;
+        if (mLevelDataBeatIterator >= mLevelData.beats.size())
+            mDoneBeats = true;
+    }
 }
 
 synthrush::GameScene::~GameScene() {}
+
+void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
+    float posX, posY;
+
+    if (mGame->Random(0, 1) > 0.5f)
+        posX = mGame->Random(-5, -1);
+    else
+        posX = mGame->Random(1, 5);
+
+    if (mGame->Random(0, 1) > 0.5f)
+        posY = mGame->Random(1, 5);
+    else
+        posY = mGame->Random(6, 7);
+
+    SpawnEntity(new Enemy(
+        this,
+        {posX, posY, 15 + mapMoveSpeed * mLevelData.beats[beatN] - mapMoveSpeed * mGameTime}));
+}
 
 void synthrush::GameScene::Update(float dT) {
     Vector2 mousePos = GetMousePosition();
@@ -36,10 +62,9 @@ void synthrush::GameScene::Update(float dT) {
     mGameTime += dT;
 
     if (!mDoneBeats)
-        if (mGameTime >= mLevelData.beats[mLevelDataBeatIterator]) {
-            SpawnEntity(new Enemy(this, {mGame->Random(-5, 5), mGame->Random(3, 5), 30}));
+        if (mGameTime >= mLevelData.beats[mLevelDataBeatIterator] - 3 - 30 / mapMoveSpeed) {
+            SpawnEnemyForBeatN(mLevelDataBeatIterator);
             ++mLevelDataBeatIterator;
-
             if (mLevelDataBeatIterator >= mLevelData.beats.size())
                 mDoneBeats = true;
         }
@@ -51,16 +76,18 @@ static void DrawGroundGrid(float off) {
     const int gridCountSides = 10;
     const float halfWidth = (gridCountSides / 2.0f) * gridSpacing;
 
+    Color color = Fade(MAGENTA, off / 2);
+
     off = fmodf(off, gridSpacing);
 
     for (int i = -gridCountSides / 2; i <= gridCountSides / 2; ++i) {
         float x = i * gridSpacing;
-        DrawLine3D({x, 0, -gridSpacing * gridCount}, {x, 0, gridSpacing * gridCount}, MAGENTA);
+        DrawLine3D({x, 0, -gridSpacing * gridCount}, {x, 0, gridSpacing * gridCount}, color);
     }
 
     for (int i = -gridCount; i <= gridCount; ++i) {
         float z = i * gridSpacing - off;
-        DrawLine3D({-halfWidth, 0, z}, {halfWidth, 0, z}, MAGENTA);
+        DrawLine3D({-halfWidth, 0, z}, {halfWidth, 0, z}, color);
     }
 }
 
@@ -77,7 +104,7 @@ void synthrush::GameScene::Render(float dT) {
 
     EndMode3D();
 
-    DrawText(std::to_string(GetFPS()).c_str(), 10, 10, 32, WHITE);
+    DrawText(std::to_string(mGameTime).c_str(), 10, 10, 32, WHITE);
 }
 
 void synthrush::GameScene::SpawnEntity(Entity *ent) { mEntities.push_back(ent); }

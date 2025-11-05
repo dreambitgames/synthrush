@@ -19,9 +19,11 @@ class GameScene : public Scene {
 
     void SpawnEntity(Entity *ent);
 
-    float mapMoveSpeed = 10;
+    float mapMoveSpeed = 30;
 
    private:
+    void SpawnEnemyForBeatN(int beatN);
+
     std::vector<Entity *> mEntities;
 
     LevelData mLevelData;
