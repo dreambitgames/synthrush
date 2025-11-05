@@ -1,5 +1,6 @@
 #include "gameScene.h"
 
+#include <raylib.h>
 #include <raymath.h>
 
 #include <algorithm>
@@ -104,7 +105,10 @@ void synthrush::GameScene::Render(float dT) {
 
     EndMode3D();
 
-    DrawText(std::to_string(mGameTime).c_str(), 10, 10, 32, WHITE);
+    static Vector2 hudOffset{};
+    hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
+
+    DrawText(std::to_string(mGameTime).c_str(), 10 + hudOffset.x, 10 + hudOffset.y, 32, WHITE);
 }
 
 void synthrush::GameScene::SpawnEntity(Entity *ent) { mEntities.push_back(ent); }
