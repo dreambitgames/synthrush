@@ -24,6 +24,8 @@ class GameScene : public Scene {
     float mapMoveSpeed = 30;
 
    private:
+    std::string mScoreIndicatorText;
+
     float mShootEffectFactor = 0;
     Color mScoreTextColor = WHITE;
 

@@ -93,16 +93,31 @@ void synthrush::GameScene::Update(float dT) {
 }
 
 float synthrush::GameScene::CalculateShootScore(int beatN) {
-    return 1 - Clamp(abs(mGameTime - mLevelData.beats[beatN]), 0, 1);
+    return (0.5 - Clamp(abs(mGameTime - mLevelData.beats[beatN]), 0, 1)) * 2;
 }
 
 void synthrush::GameScene::OnEnemyShot(int beatN) {
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
-    mGameScore += CalculateShootScore(beatN);
+
+    float shootScore = CalculateShootScore(beatN);
+    mGameScore += shootScore;
 
     mShootEffectFactor += 1;
-    mScoreTextColor = MAGENTA;
+
+    if (shootScore >= 0.9) {
+        mScoreTextColor = MAGENTA;
+        mScoreIndicatorText = "PERFECT!!!";
+    } else if (shootScore >= 0.7) {
+        mScoreTextColor = GREEN;
+        mScoreIndicatorText = "NICE!";
+    } else if (shootScore >= 0.5) {
+        mScoreTextColor = YELLOW;
+        mScoreIndicatorText = "OKAY";
+    } else {
+        mScoreTextColor = RED;
+        mScoreIndicatorText = "OOPS...";
+    }
 }
 
 void synthrush::GameScene::OnEnemyMissed(int beatN) {
@@ -110,8 +125,10 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
         mEnemies[1]->SetMarked();
     mGameScore -= 1;
 
-    mShootEffectFactor = -0.3f;
+    mShootEffectFactor = 0.7f;
     mScoreTextColor = RED;
+
+    mScoreIndicatorText = "OOPS...";
 }
 
 static void DrawGroundGrid(float off) {
@@ -120,7 +137,7 @@ static void DrawGroundGrid(float off) {
     const int gridCountSides = 10;
     const float halfWidth = (gridCountSides / 2.0f) * gridSpacing;
 
-    Color color = Fade(MAGENTA, off / 2);
+    Color color = Fade(MAGENTA, Clamp(off / 10, 0, 1));
 
     off = fmodf(off, gridSpacing);
 
@@ -153,8 +170,9 @@ void synthrush::GameScene::Render(float dT) {
     DrawTextEx(mGame->mainFont, std::to_string(mGameScore).c_str(), Vector2Add(hudOffset, {10, 10}),
                mShootEffectFactor * 10 + 24, 0, mScoreTextColor);
 
-    DrawTextPro(mGame->mainFont, "EXCELLENT!!!", Vector2Add(hudOffset, {70, 42}), {0, 0}, -5,
-                mShootEffectFactor * 6 + 12, 0, Fade(MAGENTA, mShootEffectFactor));
+    DrawTextPro(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {70, 42}),
+                {0, 0}, -5, mShootEffectFactor * 6 + 12, 0,
+                Fade(mScoreTextColor, mShootEffectFactor));
 
     // DrawTextEx(mGame->mainFont, "EXCELLENT!!!", Vector2Add(hudOffset, {10, 50}),
     //          mShootEffectFactor * 12 + 24, 0, Fade(MAGENTA, mShootEffectFactor));
