@@ -20,10 +20,13 @@ class GameScene : public Scene {
 
     void OnEnemyShot(int beatN);
     void OnEnemyMissed(int beatN);
+    void OnGameOver();
 
     float mapMoveSpeed = 30;
 
    private:
+    bool mGameOver = false;
+
     std::string mScoreIndicatorText;
 
     float mShootEffectFactor = 0;
@@ -31,7 +34,8 @@ class GameScene : public Scene {
 
     float mGameScore = 0;
 
-    Sound mMusic;
+    Sound mMusic, mGameOverSound;
+    Music mGameOverBGMusic;
 
     float CalculateShootScore(int beatN);
     void SpawnEnemyForBeatN(int beatN);

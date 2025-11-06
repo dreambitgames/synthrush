@@ -9,11 +9,15 @@ A copy of the GPLv3 license is included in `LICENSES/GPLv3.txt`
 and is also available online at <https://www.gnu.org/licenses/gpl-3.0.html>.
 
 ### Assets
-All artwork, sound effects and music files (in the `assets/` directory and its subdirectories)
+All artwork and music files (in the `assets/` directory and its subdirectories)
 are licensed under the **Creative Commons Attribution-ShareAlike 4.0 International License** (CC BY-SA 4.0)
 
 A copy of that license is included in `LICENSES/CC-BY-SA-4.0.txt`
 and is also available online at <https://creativecommons.org/licenses/by-sa/4.0>
+
+All sound effects in this project were generated using SFXR (<https://www.drpetter.se/project_sfxr.html>).
+
+The raw sounds produced by SFXR are not subject to copyright and are released into the public domain.
 
 ### Third-Party Libraries
 This project uses the following open-source libraries:
