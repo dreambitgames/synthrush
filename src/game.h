@@ -11,7 +11,7 @@ namespace synthrush {
 
 class Game {
    public:
-    Game(int w, int h);
+    Game(int w, int h, int vw, int vh);
     ~Game();
 
     void Update(float dT);
@@ -26,6 +26,7 @@ class Game {
     bool IsRunning() { return mRunning; }
 
     int screenW, screenH;
+    int virtualW, virtualH;
 
     Font mainFont;
 

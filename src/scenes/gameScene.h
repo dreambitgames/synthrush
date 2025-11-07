@@ -5,6 +5,7 @@
 #include "../entities/enemy.h"
 #include "../levelData.h"
 #include "../scene.h"
+#include "../ui/button.h"
 
 namespace synthrush {
 
@@ -25,6 +26,8 @@ class GameScene : public Scene {
     float mapMoveSpeed = 30;
 
    private:
+    ui::Button mRetryBtn, mMenuBtn;
+
     bool mGameOver = false;
 
     std::string mScoreIndicatorText;
@@ -35,7 +38,6 @@ class GameScene : public Scene {
     float mGameScore = 0;
 
     Sound mMusic, mGameOverSound;
-    Music mGameOverBGMusic;
 
     float CalculateShootScore(int beatN);
     void SpawnEnemyForBeatN(int beatN);

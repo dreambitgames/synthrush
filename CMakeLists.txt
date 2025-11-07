@@ -25,6 +25,9 @@ add_executable(${PROJECT_NAME}
   src/scenes/gameScene.cpp
   src/scenes/gameScene.h
 
+  src/ui/button.h 
+  src/ui/button.cpp
+
   src/entity.h 
   src/scene.h
 )

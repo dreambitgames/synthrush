@@ -10,7 +10,7 @@ int main() {
     const int virtualWidth = screenWidth / downscaleFact;
     const int virtualHeight = screenHeight / downscaleFact;
 
-    synthrush::Game game(screenWidth, screenHeight);
+    synthrush::Game game(screenWidth, screenHeight, virtualWidth, virtualHeight);
 
     RenderTexture2D target = LoadRenderTexture(virtualWidth, virtualHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);

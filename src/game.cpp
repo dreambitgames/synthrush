@@ -9,7 +9,8 @@
 #include "levelData.h"
 #include "scenes/gameScene.h"
 
-synthrush::Game::Game(int w, int h) : screenW(w), screenH(h) {
+synthrush::Game::Game(int w, int h, int vw, int vh)
+    : screenW(w), screenH(h), virtualW(vw), virtualH(vh) {
     InitWindow(w, h, "[SYNTHRUSH]");
     ToggleFullscreen();
     SetTargetFPS(60);

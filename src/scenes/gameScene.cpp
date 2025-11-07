@@ -12,7 +12,11 @@
 #include "../game.h"
 #include "../random.h"
 
-synthrush::GameScene::GameScene(Game *game, LevelData &data) : mLevelData(data), Scene(game) {
+synthrush::GameScene::GameScene(Game *game, LevelData &data)
+    : mLevelData(data),
+      Scene(game),
+      mRetryBtn(mGame, "Retry", 16, WHITE),
+      mMenuBtn(mGame, "Menu", 16, WHITE) {
     mCam.position = {0, 5, 0};
     mCam.target = {0, 5, 10};
     mCam.up = {0, 1, 0};
@@ -32,7 +36,6 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data) : mLevelData(data),
     PlaySound(mMusic);
 
     mGameOverSound = LoadSound("assets/sfx/gameOver.wav");
-    mGameOverBGMusic = LoadMusicStream("assets/music/gameOverBG.wav");
 }
 
 synthrush::GameScene::~GameScene() { UnloadSound(mMusic); }
@@ -84,7 +87,6 @@ void synthrush::GameScene::Update(float dT) {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             mEnemies[0]->CheckHit(mShootRay);
     } else {
-        UpdateMusicStream(mGameOverBGMusic);
     }
 
     mEnemies.erase(std::remove_if(mEnemies.begin(), mEnemies.end(),
@@ -142,8 +144,6 @@ void synthrush::GameScene::OnGameOver() {
     StopSound(mMusic);
     mGameOver = true;
     PlaySound(mGameOverSound);
-    PlayMusicStream(mGameOverBGMusic);
-    SetMusicVolume(mGameOverBGMusic, 0.3);
 }
 
 void synthrush::GameScene::OnEnemyMissed(int beatN) {
@@ -212,10 +212,15 @@ void synthrush::GameScene::Render(float dT) {
     if (mGameOver) {
         gameOverCoefficient = Lerp(gameOverCoefficient, 1, 3 * dT);
         DrawRectangle(0, 0, mGame->screenW, mGame->screenH, Fade(BLACK, gameOverCoefficient * 0.7));
-        DrawTextEx(mGame->mainFont, "Game Over!", {30, gameOverCoefficient * 30}, 32, 0,
-                   Fade(RED, gameOverCoefficient * 3));
-    }
 
-    // DrawTextEx(mGame->mainFont, "EXCELLENT!!!", Vector2Add(hudOffset, {10, 50}),
-    //          mShootEffectFactor * 12 + 24, 0, Fade(MAGENTA, mShootEffectFactor));
+        const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Game Over!", 32, 0);
+
+        DrawTextEx(mGame->mainFont, "Game Over!",
+                   {mGame->virtualW / 2.0f - textDim.x / 2,
+                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
+                   32, 0, Fade(RED, gameOverCoefficient * 3));
+
+        mMenuBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 25});
+        mRetryBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 50});
+    }
 }
