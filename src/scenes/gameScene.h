@@ -55,6 +55,10 @@ class GameScene : public Scene {
     Ray mShootRay;
     Camera3D mCam;
 
+    float mCurrentShakeMagnitude;
+    float mCurrentShakeDuration;
+    float mCurrentShakeTimer;
+
     friend class Enemy;
 };
 

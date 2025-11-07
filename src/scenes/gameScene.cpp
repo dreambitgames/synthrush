@@ -65,7 +65,15 @@ void synthrush::GameScene::Update(float dT) {
     Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 10};
 
     mCam.target = Vector3Lerp(mCam.target, camTarget, 7 * dT);
-    // UpdateCamera(&mCam, CAMERA_FREE);
+
+    if (mCurrentShakeTimer >= 0) {
+        float magnitude = mCurrentShakeMagnitude * (mCurrentShakeTimer / mCurrentShakeDuration);
+        Vector3 offset = {util::Random(-magnitude, magnitude), util::Random(-magnitude, magnitude),
+                          util::Random(-magnitude, magnitude)};
+        mCam.position = Vector3Add({0, 5, 0}, offset);
+        mCam.target = Vector3Add(mCam.target, offset);
+        mCurrentShakeTimer -= dT;
+    }
 
     mShootRay = GetMouseRay(mousePos, mCam);
 
@@ -144,6 +152,9 @@ void synthrush::GameScene::OnGameOver() {
     StopSound(mMusic);
     mGameOver = true;
     PlaySound(mGameOverSound);
+
+    mCurrentShakeTimer = mCurrentShakeDuration = 1;
+    mCurrentShakeMagnitude = 1;
 }
 
 void synthrush::GameScene::OnEnemyMissed(int beatN) {
@@ -160,6 +171,9 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
 
     if (mGameScore <= 0 && !mGameOver)
         OnGameOver();
+
+    mCurrentShakeTimer = mCurrentShakeDuration = 0.5;
+    mCurrentShakeMagnitude = 0.1;
 }
 
 static void DrawGroundGrid(float off) {
