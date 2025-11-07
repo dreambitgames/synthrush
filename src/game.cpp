@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fstream>
 
+#include "audioProc.h"
 #include "levelData.h"
 #include "scenes/gameScene.h"
 
@@ -16,6 +17,7 @@ synthrush::Game::Game(int w, int h, int vw, int vh)
     SetTargetFPS(60);
 
     InitAudioDevice();
+    synthrush::InitAudioProcessor();
 
     mainFont = LoadFont("assets/fonts/zendots.ttf");
 
@@ -31,6 +33,9 @@ synthrush::Game::~Game() {
         delete mCurrentScene;
     UnloadFont(mainFont);
     CloseWindow();
+
+    synthrush::DeinitAudioProcessor();
+    CloseAudioDevice();
 }
 
 void synthrush::Game::Update(float dT) { mCurrentScene->Update(dT); }

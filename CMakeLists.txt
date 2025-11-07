@@ -15,6 +15,9 @@ add_executable(${PROJECT_NAME}
 
   src/random.cpp
   src/random.h
+  
+  src/audioProc.cpp
+  src/audioProc.h
 
   src/game.cpp
   src/game.h
@@ -25,8 +28,8 @@ add_executable(${PROJECT_NAME}
   src/scenes/gameScene.cpp
   src/scenes/gameScene.h
 
-  src/ui/button.h 
-  src/ui/button.cpp
+  src/ui/button.cpp 
+  src/ui/button.h
 
   src/entity.h 
   src/scene.h

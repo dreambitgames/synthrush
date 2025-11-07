@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <string>
 
+#include "../audioProc.h"
 #include "../entities/enemy.h"
 #include "../entity.h"
 #include "../game.h"
@@ -176,6 +177,10 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
     mCurrentShakeMagnitude = 0.1;
 }
 
+static void DrawSides(float *samples, int sampleCount) {
+    // TODO: Implement
+}
+
 static void DrawGroundGrid(float off) {
     const float gridSpacing = 3.0f;
     const int gridCount = 50;
@@ -204,6 +209,8 @@ void synthrush::GameScene::Render(float dT) {
     static float off = 0;
     DrawGroundGrid(off);
     off += dT * mapMoveSpeed;
+
+    DrawSides(GetAmplitudes(), 50);
 
     for (Entity *ent : mEnemies) ent->Render(dT);
 
