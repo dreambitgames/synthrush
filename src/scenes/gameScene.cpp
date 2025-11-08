@@ -37,6 +37,8 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
     PlaySound(mMusic);
 
     mGameOverSound = LoadSound("assets/sfx/gameOver.wav");
+
+    HideCursor();
 }
 
 synthrush::GameScene::~GameScene() { UnloadSound(mMusic); }
@@ -61,19 +63,24 @@ void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
 
 void synthrush::GameScene::Update(float dT) {
     static Vector2 mousePos{};
+    if (!mGameOver)
+        mousePos = GetMousePosition();
+
     Vector2 mousePosNormalied = {2 * mousePos.x / mGame->screenW - 1,
                                  2 * mousePos.y / mGame->screenH - 1};
     Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 10};
 
     mCam.target = Vector3Lerp(mCam.target, camTarget, 7 * dT);
 
-    if (mCurrentShakeTimer >= 0) {
+    if (mCurrentShakeTimer > 0) {
         float magnitude = mCurrentShakeMagnitude * (mCurrentShakeTimer / mCurrentShakeDuration);
         Vector3 offset = {util::Random(-magnitude, magnitude), util::Random(-magnitude, magnitude),
                           util::Random(-magnitude, magnitude)};
         mCam.position = Vector3Add({0, 5, 0}, offset);
         mCam.target = Vector3Add(mCam.target, offset);
         mCurrentShakeTimer -= dT;
+    } else {
+        mCam.position = {0, 5, 0};
     }
 
     mShootRay = GetMouseRay(mousePos, mCam);
@@ -81,8 +88,6 @@ void synthrush::GameScene::Update(float dT) {
     for (Entity *ent : mEnemies) ent->Update(dT);
 
     if (!mGameOver) {
-        mousePos = GetMousePosition();
-
         mGameTime += dT;
 
         if (!mDoneBeats)
@@ -131,6 +136,8 @@ void synthrush::GameScene::OnEnemyShot(int beatN) {
 
     mShootEffectFactor += 1;
 
+    ++mCurrentBeatIdx;
+
     if (shootScore >= 0.9) {
         mScoreTextColor = MAGENTA;
         mScoreIndicatorText = "PERFECT!!!";
@@ -170,6 +177,8 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
 
     mScoreIndicatorText = "OOPS...";
 
+    ++mCurrentBeatIdx;
+
     if (mGameScore <= 0 && !mGameOver)
         OnGameOver();
 
@@ -184,7 +193,7 @@ static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
     const int gridCountSides = 10;
     const float gridSpacing = 3.0f;
     const float halfWidth = (lineCount / 2.0f) * lineSpacing;
-    const int linePartCount = 25;
+    const int linePartCount = sampleCount;
 
     const float waveAmplCoeff = 30;
 
@@ -234,11 +243,14 @@ void synthrush::GameScene::Render(float dT) {
     DrawGroundGrid(off);
     off += dT * mapMoveSpeed;
 
-    DrawSides(GetAmplitudesL(), GetAmplitudesR(), 50);
+    DrawSides(GetAmplitudesL(), GetAmplitudesR(), 25);
 
     for (Entity *ent : mEnemies) ent->Render(dT);
 
     EndMode3D();
+
+    Vector2 virtualMousePos =
+        Vector2Scale(GetMousePosition(), mGame->virtualW / (float)mGame->screenW);
 
     static Vector2 hudOffset{};
     if (mGameOver)
@@ -268,4 +280,18 @@ void synthrush::GameScene::Render(float dT) {
         mMenuBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 25});
         mRetryBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 50});
     }
+
+    float helperCursorRadiusTarget = 5;
+
+    float beatCloseIndicator = (mCurrentBeatIdx < mLevelData.beats.size() && !mGameOver)
+                                   ? Clamp(mLevelData.beats[mCurrentBeatIdx] - mGameTime, 0, 10)
+                                   : 0;
+
+    helperCursorRadiusTarget += 10 * beatCloseIndicator;
+
+    static float helperCursorRadius = 0;
+    helperCursorRadius = Lerp(helperCursorRadius, helperCursorRadiusTarget, 10 * dT);
+
+    DrawCircle(virtualMousePos.x, virtualMousePos.y, helperCursorRadius,
+               Fade(WHITE, Clamp(1 - beatCloseIndicator, 0, 0.7f) + 0.3f));
 }

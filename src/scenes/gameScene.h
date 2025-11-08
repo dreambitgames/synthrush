@@ -47,17 +47,19 @@ class GameScene : public Scene {
     LevelData mLevelData;
     int mLevelDataBeatIterator = 0;
 
+    int mCurrentBeatIdx = 0;
+
     bool mDoneBeats = false;
     bool mDoneMusic = false;
 
     float mGameTime = 0;
 
     Ray mShootRay;
-    Camera3D mCam;
+    Camera3D mCam{};
 
-    float mCurrentShakeMagnitude;
-    float mCurrentShakeDuration;
-    float mCurrentShakeTimer;
+    float mCurrentShakeMagnitude = 0;
+    float mCurrentShakeDuration = 0;
+    float mCurrentShakeTimer = 0;
 
     friend class Enemy;
 };
