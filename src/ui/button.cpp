@@ -10,7 +10,7 @@ synthrush::ui::Button::Button(Game *game, const char *text, int fontSize, Color 
     mTextDimensions = MeasureTextEx(game->mainFont, this->text.c_str(), fontSize, 0);
 }
 
-void synthrush::ui::Button::Render(Vector2 centerPosition) {
+void synthrush::ui::Button::Render() {
     Rectangle rect =
         Rectangle{centerPosition.x - mTextDimensions.x / 2,
                   centerPosition.y - mTextDimensions.y / 2, mTextDimensions.x, mTextDimensions.y};
@@ -24,11 +24,12 @@ void synthrush::ui::Button::Render(Vector2 centerPosition) {
                fontSize, 0, Fade(color, alpha));
 }
 
-bool synthrush::ui::Button::Clicked(Vector2 centerPosition) {
+bool synthrush::ui::Button::Clicked() {
     Rectangle rect =
         Rectangle{centerPosition.x - mTextDimensions.x / 2,
                   centerPosition.y - mTextDimensions.y / 2, mTextDimensions.x, mTextDimensions.y};
 
-    bool hover = CheckCollisionPointRec(GetMousePosition(), rect);
+    bool hover = CheckCollisionPointRec(
+        Vector2Scale(GetMousePosition(), mGame->virtualW / (float)mGame->screenW), rect);
     return IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && hover;
 }

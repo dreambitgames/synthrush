@@ -18,6 +18,9 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
       Scene(game),
       mRetryBtn(mGame, "Retry", 16, WHITE),
       mMenuBtn(mGame, "Menu", 16, WHITE) {
+    mMenuBtn.centerPosition = {(float)mGame->virtualW / 2, (float)mGame->virtualH - 25};
+    mRetryBtn.centerPosition = {(float)mGame->virtualW / 2, (float)mGame->virtualH - 50};
+
     mCam.position = {0, 5, 0};
     mCam.target = {0, 5, 10};
     mCam.up = {0, 1, 0};
@@ -116,8 +119,13 @@ void synthrush::GameScene::Update(float dT) {
     mShootEffectFactor = Lerp(mShootEffectFactor, 0, 3 * dT);
     mScoreTextColor = ColorLerp(mScoreTextColor, WHITE, 3 * dT);
 
-    if (mGameOver)
+    if (mGameOver) {
         mapMoveSpeed = Lerp(mapMoveSpeed, 0, 0.7 * dT);
+
+        // temporary
+        if (mMenuBtn.Clicked())
+            mGame->EndGame();
+    }
 }
 
 float synthrush::GameScene::CalculateShootScore(int beatN) {
@@ -277,8 +285,8 @@ void synthrush::GameScene::Render(float dT) {
                     mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
                    32, 0, Fade(RED, gameOverCoefficient * 3));
 
-        mMenuBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 25});
-        mRetryBtn.Render({(float)mGame->virtualW / 2, (float)mGame->virtualH - 50});
+        mMenuBtn.Render();
+        mRetryBtn.Render();
     }
 
     float helperCursorRadiusTarget = 5;

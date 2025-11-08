@@ -25,14 +25,14 @@ class Game {
 
     bool IsRunning() { return mRunning; }
 
+    void EndGame() { mRunning = false; }
+
     int screenW, screenH;
     int virtualW, virtualH;
 
     Font mainFont;
 
    private:
-    void EndGame() { mRunning = false; }
-
     bool mRunning = true;
     Scene *mCurrentScene = nullptr;
 };

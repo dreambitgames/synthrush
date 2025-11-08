@@ -13,12 +13,13 @@ class Button {
    public:
     Button(Game *game, const char *text, int fontSize, Color color);
 
-    void Render(Vector2 centerPosition);
-    bool Clicked(Vector2 centerPosition);
+    void Render();
+    bool Clicked();
 
     std::string text;
     int fontSize;
     Color color;
+    Vector2 centerPosition;
 
    private:
     Game *mGame = nullptr;
