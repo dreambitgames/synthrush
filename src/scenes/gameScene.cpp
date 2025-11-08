@@ -170,8 +170,8 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
 
     mScoreIndicatorText = "OOPS...";
 
-    // if (mGameScore <= 0 && !mGameOver)
-    //    OnGameOver();
+    if (mGameScore <= 0 && !mGameOver)
+        OnGameOver();
 
     mCurrentShakeTimer = mCurrentShakeDuration = 0.5;
     mCurrentShakeMagnitude = 0.1;
