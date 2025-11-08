@@ -145,9 +145,13 @@ void synthrush::GameScene::OnEnemyShot(int beatN) {
     float shootScore = CalculateShootScore(beatN);
     mGameScore += shootScore;
 
+    if (shootScore < 0.5)
+        ++mMissedCount;
+
     mShootEffectFactor += 1;
 
     ++mCurrentBeatIdx;
+    ++mAccuracyCount;
 
     if (shootScore >= 0.9) {
         mScoreTextColor = MAGENTA;
@@ -163,8 +167,10 @@ void synthrush::GameScene::OnEnemyShot(int beatN) {
         mScoreIndicatorText = "OOPS...";
     }
 
-    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0)
+    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0) {
         mWonGame = true;
+        mFinalAccuracyPercent = GetAccuracyPercent();
+    }
 
     if (mGameScore <= 0 && !mLostGame)
         OnGameOver();
@@ -192,9 +198,13 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
     mScoreIndicatorText = "OOPS...";
 
     ++mCurrentBeatIdx;
+    ++mAccuracyCount;
+    ++mMissedCount;
 
-    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0)
+    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0) {
         mWonGame = true;
+        mFinalAccuracyPercent = GetAccuracyPercent();
+    }
 
     if (mGameScore <= 0 && !mLostGame && !mWonGame)
         OnGameOver();
@@ -275,12 +285,8 @@ void synthrush::GameScene::Render(float dT) {
     else
         hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
 
-    DrawTextEx(mGame->mainFont, std::to_string(mGameScore).c_str(), Vector2Add(hudOffset, {10, 10}),
-               mShootEffectFactor * 10 + 24, 0, mScoreTextColor);
-
-    DrawTextPro(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {70, 42}),
-                {0, 0}, -5, mShootEffectFactor * 6 + 12, 0,
-                Fade(mScoreTextColor, mShootEffectFactor));
+    DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {10, 30}),
+               mShootEffectFactor * 6 + 12, 0, Fade(mScoreTextColor, mShootEffectFactor * 2 + 0.1));
 
     static float gameOverCoefficient = 0;
 
@@ -308,6 +314,20 @@ void synthrush::GameScene::Render(float dT) {
                     mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
                    32, 0, Fade(GREEN, gameOverCoefficient * 3));
 
+        static float displayAccuracy = 0;
+
+        if (mFinalAccuracyPercent - displayAccuracy > 1)
+            displayAccuracy = Lerp(displayAccuracy, mFinalAccuracyPercent, dT);
+        else
+            displayAccuracy = mFinalAccuracyPercent;
+
+        DrawTextEx(
+            mGame->mainFont,
+            TextFormat("Accuracy: %d%%\nMissed Beats: %d", (int)displayAccuracy, mMissedCount),
+            {mGame->virtualW / 2.0f - textDim.x / 2,
+             mGame->virtualH / 2.0f - textDim.y / 2 + 70 - gameOverCoefficient * 30},
+            16, 0, Fade(WHITE, gameOverCoefficient * 3));
+
         mMenuBtn.Render();
         mRetryBtn.Render();
     }
@@ -326,4 +346,10 @@ void synthrush::GameScene::Render(float dT) {
 
     DrawCircle(virtualMousePos.x, virtualMousePos.y, helperCursorRadius,
                Fade(WHITE, Clamp(1 - beatCloseIndicator, 0, 0.7f) + 0.3f));
+}
+
+float synthrush::GameScene::GetAccuracyPercent() {
+    if (mAccuracyCount == 0)
+        return 0;
+    return Clamp(mGameScore / mAccuracyCount, 0, 1) * 100;
 }

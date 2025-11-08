@@ -26,6 +26,13 @@ class GameScene : public Scene {
     float mapMoveSpeed = 30;
 
    private:
+    float GetAccuracyPercent();
+
+    int mAccuracyCount = 0;
+    int mMissedCount = 0;
+
+    float mFinalAccuracyPercent = 0;
+
     ui::Button mRetryBtn, mMenuBtn;
 
     bool mLostGame = false;
