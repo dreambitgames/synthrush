@@ -28,7 +28,9 @@ class GameScene : public Scene {
    private:
     ui::Button mRetryBtn, mMenuBtn;
 
-    bool mGameOver = false;
+    bool mLostGame = false;
+    bool mWonGame = false;
+    float mScreenShowCountdown = 3;
 
     std::string mScoreIndicatorText;
 

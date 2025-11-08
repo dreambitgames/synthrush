@@ -66,14 +66,15 @@ void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
 
 void synthrush::GameScene::Update(float dT) {
     static Vector2 mousePos{};
-    if (!mGameOver)
+    if (!mLostGame && !mWonGame)
         mousePos = GetMousePosition();
 
     Vector2 mousePosNormalied = {2 * mousePos.x / mGame->screenW - 1,
                                  2 * mousePos.y / mGame->screenH - 1};
     Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 10};
 
-    mCam.target = Vector3Lerp(mCam.target, camTarget, 7 * dT);
+    mCam.target =
+        Vector3Lerp(mCam.target, mWonGame ? Vector3{0, 5, 10} : camTarget, (mWonGame ? 1 : 7) * dT);
 
     if (mCurrentShakeTimer > 0) {
         float magnitude = mCurrentShakeMagnitude * (mCurrentShakeTimer / mCurrentShakeDuration);
@@ -90,7 +91,7 @@ void synthrush::GameScene::Update(float dT) {
 
     for (Entity *ent : mEnemies) ent->Update(dT);
 
-    if (!mGameOver) {
+    if (!mLostGame && !mWonGame) {
         mGameTime += dT;
 
         if (!mDoneBeats)
@@ -119,8 +120,10 @@ void synthrush::GameScene::Update(float dT) {
     mShootEffectFactor = Lerp(mShootEffectFactor, 0, 3 * dT);
     mScoreTextColor = ColorLerp(mScoreTextColor, WHITE, 3 * dT);
 
-    if (mGameOver) {
+    if (mLostGame || mWonGame) {
         mapMoveSpeed = Lerp(mapMoveSpeed, 0, 0.7 * dT);
+        if (mScreenShowCountdown > 0)
+            mScreenShowCountdown -= dT;
 
         // temporary
         if (mMenuBtn.Clicked())
@@ -133,7 +136,7 @@ float synthrush::GameScene::CalculateShootScore(int beatN) {
 }
 
 void synthrush::GameScene::OnEnemyShot(int beatN) {
-    if (mGameOver)
+    if (mLostGame || mWonGame)
         return;
 
     if (mEnemies.size() > 1)
@@ -160,13 +163,16 @@ void synthrush::GameScene::OnEnemyShot(int beatN) {
         mScoreIndicatorText = "OOPS...";
     }
 
-    if (mGameScore <= 0 && !mGameOver)
+    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0)
+        mWonGame = true;
+
+    if (mGameScore <= 0 && !mLostGame)
         OnGameOver();
 }
 
 void synthrush::GameScene::OnGameOver() {
     StopSound(mMusic);
-    mGameOver = true;
+    mLostGame = true;
     PlaySound(mGameOverSound);
 
     mCurrentShakeTimer = mCurrentShakeDuration = 1;
@@ -174,7 +180,7 @@ void synthrush::GameScene::OnGameOver() {
 }
 
 void synthrush::GameScene::OnEnemyMissed(int beatN) {
-    if (mGameOver)
+    if (mLostGame || mWonGame)
         return;
     if (mEnemies.size() > 1)
         mEnemies[1]->SetMarked();
@@ -187,7 +193,10 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
 
     ++mCurrentBeatIdx;
 
-    if (mGameScore <= 0 && !mGameOver)
+    if (mCurrentBeatIdx >= mLevelData.beats.size() && mGameScore > 0)
+        mWonGame = true;
+
+    if (mGameScore <= 0 && !mLostGame && !mWonGame)
         OnGameOver();
 
     mCurrentShakeTimer = mCurrentShakeDuration = 0.5;
@@ -261,7 +270,7 @@ void synthrush::GameScene::Render(float dT) {
         Vector2Scale(GetMousePosition(), mGame->virtualW / (float)mGame->screenW);
 
     static Vector2 hudOffset{};
-    if (mGameOver)
+    if (mLostGame || mWonGame)
         hudOffset = Vector2Lerp(hudOffset, {0, 0}, 0.7 * dT);
     else
         hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
@@ -274,7 +283,8 @@ void synthrush::GameScene::Render(float dT) {
                 Fade(mScoreTextColor, mShootEffectFactor));
 
     static float gameOverCoefficient = 0;
-    if (mGameOver) {
+
+    if (mLostGame && mScreenShowCountdown <= 0) {
         gameOverCoefficient = Lerp(gameOverCoefficient, 1, 3 * dT);
         DrawRectangle(0, 0, mGame->screenW, mGame->screenH, Fade(BLACK, gameOverCoefficient * 0.7));
 
@@ -287,13 +297,27 @@ void synthrush::GameScene::Render(float dT) {
 
         mMenuBtn.Render();
         mRetryBtn.Render();
+    } else if (mWonGame && mScreenShowCountdown <= 0) {
+        gameOverCoefficient = Lerp(gameOverCoefficient, 1, 3 * dT);
+        DrawRectangle(0, 0, mGame->screenW, mGame->screenH, Fade(BLACK, gameOverCoefficient * 0.7));
+
+        const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Level Complete!", 32, 0);
+
+        DrawTextEx(mGame->mainFont, "Level Complete!",
+                   {mGame->virtualW / 2.0f - textDim.x / 2,
+                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
+                   32, 0, Fade(GREEN, gameOverCoefficient * 3));
+
+        mMenuBtn.Render();
+        mRetryBtn.Render();
     }
 
     float helperCursorRadiusTarget = 5;
 
-    float beatCloseIndicator = (mCurrentBeatIdx < mLevelData.beats.size() && !mGameOver)
-                                   ? Clamp(mLevelData.beats[mCurrentBeatIdx] - mGameTime, 0, 10)
-                                   : 0;
+    float beatCloseIndicator =
+        (mCurrentBeatIdx < mLevelData.beats.size() && !mLostGame && !mWonGame)
+            ? Clamp(mLevelData.beats[mCurrentBeatIdx] - mGameTime, 0, 10)
+            : 0;
 
     helperCursorRadiusTarget += 10 * beatCloseIndicator;
 
