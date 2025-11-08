@@ -40,11 +40,18 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
     PlaySound(mMusic);
 
     mGameOverSound = LoadSound("assets/sfx/gameOver.wav");
+    mBeepSound = LoadSound("assets/sfx/beep.wav");
+
+    SetSoundVolume(mBeepSound, 0.3);
 
     HideCursor();
 }
 
-synthrush::GameScene::~GameScene() { UnloadSound(mMusic); }
+synthrush::GameScene::~GameScene() {
+    UnloadSound(mMusic);
+    UnloadSound(mGameOverSound);
+    UnloadSound(mBeepSound);
+}
 
 void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
     float posX, posY;
@@ -323,11 +330,17 @@ void synthrush::GameScene::Render(float dT) {
                    32, 0, Fade(GREEN, gameOverCoefficient * 3));
 
         static float displayAccuracy = 0;
+        static int lastIntDisplayAccuracy = 0;
 
         if (mFinalAccuracyPercent - displayAccuracy > 1)
             displayAccuracy = Lerp(displayAccuracy, mFinalAccuracyPercent, dT);
         else
             displayAccuracy = mFinalAccuracyPercent;
+
+        if (lastIntDisplayAccuracy != (int)displayAccuracy) {
+            lastIntDisplayAccuracy = (int)displayAccuracy;
+            PlaySound(mBeepSound);
+        }
 
         DrawTextEx(
             mGame->mainFont,

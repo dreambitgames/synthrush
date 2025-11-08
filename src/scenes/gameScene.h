@@ -46,7 +46,7 @@ class GameScene : public Scene {
 
     float mGameScore = 0;
 
-    Sound mMusic, mGameOverSound;
+    Sound mMusic, mGameOverSound, mBeepSound;
 
     float CalculateShootScore(int beatN);
     void SpawnEnemyForBeatN(int beatN);
