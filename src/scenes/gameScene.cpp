@@ -170,15 +170,39 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
 
     mScoreIndicatorText = "OOPS...";
 
-    if (mGameScore <= 0 && !mGameOver)
-        OnGameOver();
+    // if (mGameScore <= 0 && !mGameOver)
+    //    OnGameOver();
 
     mCurrentShakeTimer = mCurrentShakeDuration = 0.5;
     mCurrentShakeMagnitude = 0.1;
 }
 
-static void DrawSides(float *samples, int sampleCount) {
-    // TODO: Implement
+static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
+    const float lineSpacing = 3.0f;
+    const int lineCount = 3;
+    const int gridCount = 50;
+    const int gridCountSides = 10;
+    const float gridSpacing = 3.0f;
+    const float halfWidth = (lineCount / 2.0f) * lineSpacing;
+    const int linePartCount = 25;
+
+    const float waveAmplCoeff = 30;
+
+    Color color = BLUE;
+
+    for (int sideCoeff = -1; sideCoeff < 2; sideCoeff += 2) {
+        float *samples = sideCoeff == -1 ? samplesL : samplesR;
+
+        for (int i = 0; i <= lineCount; ++i) {
+            float x = sideCoeff * (i * lineSpacing + gridCountSides * (gridSpacing + 1) / 2);
+
+            float step = gridCount * gridSpacing / linePartCount;
+            for (int c = 0; c < linePartCount; ++c)
+                DrawLine3D({x, samples[c] * waveAmplCoeff / (i * 3 + 1), step * c},
+                           {x, samples[c + 1] * waveAmplCoeff / (i * 3 + 1), step * (c + 1)},
+                           Fade(color, samples[c] * 10 + 0.5f));
+        }
+    }
 }
 
 static void DrawGroundGrid(float off) {
@@ -210,7 +234,7 @@ void synthrush::GameScene::Render(float dT) {
     DrawGroundGrid(off);
     off += dT * mapMoveSpeed;
 
-    DrawSides(GetAmplitudes(), 50);
+    DrawSides(GetAmplitudesL(), GetAmplitudesR(), 50);
 
     for (Entity *ent : mEnemies) ent->Render(dT);
 

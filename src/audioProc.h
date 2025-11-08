@@ -2,7 +2,8 @@
 
 namespace synthrush {
 
-float *GetAmplitudes();
+float *GetAmplitudesL();
+float *GetAmplitudesR();
 
 void InitAudioProcessor();
 void DeinitAudioProcessor();
