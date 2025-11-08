@@ -285,8 +285,16 @@ void synthrush::GameScene::Render(float dT) {
     else
         hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
 
-    DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {10, 30}),
-               mShootEffectFactor * 6 + 12, 0, Fade(mScoreTextColor, mShootEffectFactor * 2 + 0.1));
+    static float progress = 0;
+    progress = Lerp(progress, (mAccuracyCount / (float)mLevelData.beats.size()), 5 * dT);
+
+    DrawRectangle(15 + hudOffset.x, 15 + hudOffset.y, mGame->virtualW * progress - 30, 10,
+                  Fade(BLUE, mShootEffectFactor + 0.5));
+
+    DrawRectangle(15 + hudOffset.x, 15 + hudOffset.y, mGame->virtualW - 30, 10, Fade(BLUE, 0.3));
+
+    DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {15, 30}),
+               mShootEffectFactor * 6 + 12, 0, Fade(mScoreTextColor, mShootEffectFactor * 2 + 0.3));
 
     static float gameOverCoefficient = 0;
 
