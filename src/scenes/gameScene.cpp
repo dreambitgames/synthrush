@@ -41,8 +41,9 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
 
     mGameOverSound = LoadSound("assets/sfx/gameOver.wav");
     mBeepSound = LoadSound("assets/sfx/beep.wav");
+    mWinSound = LoadSound("assets/sfx/win.wav");
 
-    SetSoundVolume(mBeepSound, 0.3);
+    SetSoundVolume(mBeepSound, 0.1);
 
     HideCursor();
 }
@@ -51,6 +52,7 @@ synthrush::GameScene::~GameScene() {
     UnloadSound(mMusic);
     UnloadSound(mGameOverSound);
     UnloadSound(mBeepSound);
+    UnloadSound(mWinSound);
 }
 
 void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
@@ -135,6 +137,12 @@ void synthrush::GameScene::Update(float dT) {
         // temporary
         if (mMenuBtn.Clicked())
             mGame->EndGame();
+    }
+
+    static bool playedWinSound = false;
+    if (mWonGame && mScreenShowCountdown <= 0 && !playedWinSound) {
+        playedWinSound = true;
+        PlaySound(mWinSound);
     }
 }
 
