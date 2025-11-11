@@ -20,6 +20,10 @@ int main() {
     while (game.IsRunning() && !WindowShouldClose()) {
         double currentTime = GetTime();
         float dT = (float)(currentTime - lastTime);
+
+        if (dT >= 0.3)
+            dT = 0.3;
+
         lastTime = currentTime;
 
         game.Update(dT);

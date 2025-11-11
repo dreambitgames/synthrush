@@ -13,7 +13,7 @@ struct LevelData {
     std::string audioFile;
     std::vector<float> beats;
 
-    LevelData(json j) {
+    explicit LevelData(json j) {
         levelName = j.at("levelName").get<std::string>();
         audioFile = j.at("audioFile").get<std::string>();
         beats = j.at("beats").get<std::vector<float>>();

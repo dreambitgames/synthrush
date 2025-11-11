@@ -74,13 +74,12 @@ void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {
 }
 
 void synthrush::GameScene::Update(float dT) {
-    static Vector2 mousePos{};
     if (!mLostGame && !mWonGame)
-        mousePos = GetMousePosition();
+        mMousePos = GetMousePosition();
 
-    Vector2 mousePosNormalied = {2 * mousePos.x / mGame->screenW - 1,
-                                 2 * mousePos.y / mGame->screenH - 1};
-    Vector3 camTarget = {-mousePosNormalied.x, 5 - mousePosNormalied.y, 10};
+    Vector2 mMousePosNormalied = {2 * mMousePos.x / mGame->screenW - 1,
+                                  2 * mMousePos.y / mGame->screenH - 1};
+    Vector3 camTarget = {-mMousePosNormalied.x, 5 - mMousePosNormalied.y, 10};
 
     mCam.target =
         Vector3Lerp(mCam.target, mWonGame ? Vector3{0, 5, 10} : camTarget, (mWonGame ? 1 : 7) * dT);
@@ -96,7 +95,7 @@ void synthrush::GameScene::Update(float dT) {
         mCam.position = {0, 5, 0};
     }
 
-    mShootRay = GetMouseRay(mousePos, mCam);
+    mShootRay = GetMouseRay(mMousePos, mCam);
 
     for (Entity *ent : mEnemies) ent->Update(dT);
 
@@ -137,11 +136,13 @@ void synthrush::GameScene::Update(float dT) {
         // temporary
         if (mMenuBtn.Clicked())
             mGame->EndGame();
+
+        if (mRetryBtn.Clicked())
+            mGame->ChangeScene(new GameScene(mGame, mLevelData));
     }
 
-    static bool playedWinSound = false;
-    if (mWonGame && mScreenShowCountdown <= 0 && !playedWinSound) {
-        playedWinSound = true;
+    if (mWonGame && mScreenShowCountdown <= 0 && !mPlayedWinSound) {
+        mPlayedWinSound = true;
         PlaySound(mWinSound);
     }
 }
@@ -248,7 +249,7 @@ static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
             float x = sideCoeff * (i * lineSpacing + gridCountSides * (gridSpacing + 1) / 2);
 
             float step = gridCount * gridSpacing / linePartCount;
-            for (int c = 0; c < linePartCount; ++c)
+            for (int c = 0; c < linePartCount - 1; ++c)
                 DrawLine3D({x, samples[c] * waveAmplCoeff / (i * 3 + 1), step * c},
                            {x, samples[c + 1] * waveAmplCoeff / (i * 3 + 1), step * (c + 1)},
                            Fade(color, samples[c] * 10 + 0.5f));
@@ -281,9 +282,8 @@ void synthrush::GameScene::Render(float dT) {
     ClearBackground(BLACK);
     BeginMode3D(mCam);
 
-    static float off = 0;
-    DrawGroundGrid(off);
-    off += dT * mapMoveSpeed;
+    DrawGroundGrid(mMapOff);
+    mMapOff += dT * mapMoveSpeed;
 
     DrawSides(GetAmplitudesL(), GetAmplitudesR(), 25);
 
@@ -291,71 +291,67 @@ void synthrush::GameScene::Render(float dT) {
 
     EndMode3D();
 
-    Vector2 virtualMousePos =
+    Vector2 virtualmMousePos =
         Vector2Scale(GetMousePosition(), mGame->virtualW / (float)mGame->screenW);
 
-    static Vector2 hudOffset{};
     if (mLostGame || mWonGame)
-        hudOffset = Vector2Lerp(hudOffset, {0, 0}, 0.7 * dT);
+        mHudOffset = Vector2Lerp(mHudOffset, {0, 0}, 0.7 * dT);
     else
-        hudOffset = Vector2Lerp(hudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
+        mHudOffset = Vector2Lerp(mHudOffset, Vector2Scale(GetMouseDelta(), -0.1f), 5 * dT);
 
-    static float progress = 0;
-    progress = Lerp(progress, (mAccuracyCount / (float)mLevelData.beats.size()), 5 * dT);
+    mLevelProgress =
+        Lerp(mLevelProgress, (mAccuracyCount / (float)mLevelData.beats.size()), 5 * dT);
 
-    DrawRectangle(15 + hudOffset.x, 15 + hudOffset.y, mGame->virtualW * progress - 30, 10,
+    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW * mLevelProgress - 30, 10,
                   Fade(BLUE, mShootEffectFactor + 0.5));
 
-    DrawRectangle(15 + hudOffset.x, 15 + hudOffset.y, mGame->virtualW - 30, 10, Fade(BLUE, 0.3));
+    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW - 30, 10, Fade(BLUE, 0.3));
 
-    DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(hudOffset, {15, 30}),
+    DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(mHudOffset, {15, 30}),
                mShootEffectFactor * 6 + 12, 0, Fade(mScoreTextColor, mShootEffectFactor * 2 + 0.3));
 
-    static float gameOverCoefficient = 0;
-
     if (mLostGame && mScreenShowCountdown <= 0) {
-        gameOverCoefficient = Lerp(gameOverCoefficient, 1, 3 * dT);
-        DrawRectangle(0, 0, mGame->screenW, mGame->screenH, Fade(BLACK, gameOverCoefficient * 0.7));
+        mGameOverCoefficient = Lerp(mGameOverCoefficient, 1, 3 * dT);
+        DrawRectangle(0, 0, mGame->screenW, mGame->screenH,
+                      Fade(BLACK, mGameOverCoefficient * 0.7));
 
         const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Game Over!", 32, 0);
 
         DrawTextEx(mGame->mainFont, "Game Over!",
                    {mGame->virtualW / 2.0f - textDim.x / 2,
-                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
-                   32, 0, Fade(RED, gameOverCoefficient * 3));
+                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + mGameOverCoefficient * 30},
+                   32, 0, Fade(RED, mGameOverCoefficient * 3));
 
         mMenuBtn.Render();
         mRetryBtn.Render();
     } else if (mWonGame && mScreenShowCountdown <= 0) {
-        gameOverCoefficient = Lerp(gameOverCoefficient, 1, 3 * dT);
-        DrawRectangle(0, 0, mGame->screenW, mGame->screenH, Fade(BLACK, gameOverCoefficient * 0.7));
+        mGameOverCoefficient = Lerp(mGameOverCoefficient, 1, 3 * dT);
+        DrawRectangle(0, 0, mGame->screenW, mGame->screenH,
+                      Fade(BLACK, mGameOverCoefficient * 0.7));
 
         const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Level Complete!", 32, 0);
 
         DrawTextEx(mGame->mainFont, "Level Complete!",
                    {mGame->virtualW / 2.0f - textDim.x / 2,
-                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + gameOverCoefficient * 30},
-                   32, 0, Fade(GREEN, gameOverCoefficient * 3));
+                    mGame->virtualH / 2.0f - textDim.y / 2 - 30 + mGameOverCoefficient * 30},
+                   32, 0, Fade(GREEN, mGameOverCoefficient * 3));
 
-        static float displayAccuracy = 0;
-        static int lastIntDisplayAccuracy = 0;
-
-        if (mFinalAccuracyPercent - displayAccuracy > 1)
-            displayAccuracy = Lerp(displayAccuracy, mFinalAccuracyPercent, dT);
+        if (mFinalAccuracyPercent - mDisplayAccuracy > 1)
+            mDisplayAccuracy = Lerp(mDisplayAccuracy, mFinalAccuracyPercent, dT);
         else
-            displayAccuracy = mFinalAccuracyPercent;
+            mDisplayAccuracy = mFinalAccuracyPercent;
 
-        if (lastIntDisplayAccuracy != (int)displayAccuracy) {
-            lastIntDisplayAccuracy = (int)displayAccuracy;
+        if (mLastIntDisplayAccuracy != (int)mDisplayAccuracy) {
+            mLastIntDisplayAccuracy = (int)mDisplayAccuracy;
             PlaySound(mBeepSound);
         }
 
         DrawTextEx(
             mGame->mainFont,
-            TextFormat("Accuracy: %d%%\nMissed Beats: %d", (int)displayAccuracy, mMissedCount),
+            TextFormat("Accuracy: %d%%\nMissed Beats: %d", (int)mDisplayAccuracy, mMissedCount),
             {mGame->virtualW / 2.0f - textDim.x / 2,
-             mGame->virtualH / 2.0f - textDim.y / 2 + 70 - gameOverCoefficient * 30},
-            16, 0, Fade(WHITE, gameOverCoefficient * 3));
+             mGame->virtualH / 2.0f - textDim.y / 2 + 70 - mGameOverCoefficient * 30},
+            16, 0, Fade(WHITE, mGameOverCoefficient * 3));
 
         mMenuBtn.Render();
         mRetryBtn.Render();
@@ -370,10 +366,9 @@ void synthrush::GameScene::Render(float dT) {
 
     helperCursorRadiusTarget += 10 * beatCloseIndicator;
 
-    static float helperCursorRadius = 0;
-    helperCursorRadius = Lerp(helperCursorRadius, helperCursorRadiusTarget, 10 * dT);
+    mHelperCursorRadius = Lerp(mHelperCursorRadius, helperCursorRadiusTarget, 10 * dT);
 
-    DrawCircle(virtualMousePos.x, virtualMousePos.y, helperCursorRadius,
+    DrawCircle(virtualmMousePos.x, virtualmMousePos.y, mHelperCursorRadius,
                Fade(WHITE, Clamp(1 - beatCloseIndicator, 0, 0.7f) + 0.3f));
 }
 

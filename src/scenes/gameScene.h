@@ -28,6 +28,16 @@ class GameScene : public Scene {
    private:
     float GetAccuracyPercent();
 
+    Vector2 mMousePos{};
+    bool mPlayedWinSound = false;
+    float mMapOff = 0;
+    Vector2 mHudOffset{};
+    float mGameOverCoefficient = 0;
+    float mDisplayAccuracy = 0;
+    int mLastIntDisplayAccuracy = 0;
+    float mHelperCursorRadius = 0;
+    float mLevelProgress = 0;
+
     int mAccuracyCount = 0;
     int mMissedCount = 0;
 
