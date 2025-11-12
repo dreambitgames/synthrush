@@ -237,7 +237,7 @@ void synthrush::GameScene::OnEnemyMissed(int beatN) {
     mCurrentShakeMagnitude = 0.1;
 }
 
-static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
+static void DrawSides(float *samplesL, float *samplesR, int sampleCount, Color color) {
     const float lineSpacing = 3.0f;
     const int lineCount = 3;
     const int gridCount = 50;
@@ -247,8 +247,6 @@ static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
     const int linePartCount = sampleCount;
 
     const float waveAmplCoeff = 30;
-
-    Color color = BLUE;
 
     for (int sideCoeff = -1; sideCoeff < 2; sideCoeff += 2) {
         float *samples = sideCoeff == -1 ? samplesL : samplesR;
@@ -265,13 +263,13 @@ static void DrawSides(float *samplesL, float *samplesR, int sampleCount) {
     }
 }
 
-static void DrawGroundGrid(float off) {
+static void DrawGroundGrid(float off, Color opaqueColor) {
     const float gridSpacing = 3.0f;
     const int gridCount = 50;
     const int gridCountSides = 10;
     const float halfWidth = (gridCountSides / 2.0f) * gridSpacing;
 
-    Color color = Fade(MAGENTA, Clamp(off / 10, 0, 1));
+    Color color = Fade(opaqueColor, Clamp(off / 10, 0, 1));
 
     off = fmodf(off, gridSpacing);
 
@@ -287,13 +285,13 @@ static void DrawGroundGrid(float off) {
 }
 
 void synthrush::GameScene::Render(float dT) {
-    ClearBackground(BLACK);
+    ClearBackground(mGame->bgColor);
     BeginMode3D(mCam);
 
-    DrawGroundGrid(mMapOff);
+    DrawGroundGrid(mMapOff, mGame->fgColor);
     mMapOff += dT * mapMoveSpeed;
 
-    DrawSides(GetAmplitudesL(), GetAmplitudesR(), 25);
+    DrawSides(GetAmplitudesL(), GetAmplitudesR(), 25, mGame->fg2Color);
 
     for (Entity *ent : mEnemies) ent->Render(dT);
 
@@ -310,10 +308,13 @@ void synthrush::GameScene::Render(float dT) {
     mLevelProgress =
         Lerp(mLevelProgress, (mAccuracyCount / (float)mLevelData.beats.size()), 5 * dT);
 
-    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW * mLevelProgress - 30, 10,
-                  Fade(BLUE, mShootEffectFactor + 0.5));
+    const Color progressBarColor = mGame->fgColor;
 
-    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW - 30, 10, Fade(BLUE, 0.3));
+    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW * mLevelProgress - 30, 10,
+                  Fade(progressBarColor, mShootEffectFactor + 0.5));
+
+    DrawRectangle(15 + mHudOffset.x, 15 + mHudOffset.y, mGame->virtualW - 30, 10,
+                  Fade(progressBarColor, 0.3));
 
     DrawTextEx(mGame->mainFont, mScoreIndicatorText.c_str(), Vector2Add(mHudOffset, {15, 30}),
                mShootEffectFactor * 6 + 12, 0, Fade(mScoreTextColor, mShootEffectFactor * 2 + 0.3));
@@ -321,7 +322,7 @@ void synthrush::GameScene::Render(float dT) {
     if (mLostGame && mScreenShowCountdown <= 0) {
         mGameOverCoefficient = Lerp(mGameOverCoefficient, 1, 3 * dT);
         DrawRectangle(0, 0, mGame->screenW, mGame->screenH,
-                      Fade(BLACK, mGameOverCoefficient * 0.7));
+                      Fade(mGame->bgColor, mGameOverCoefficient * 0.7));
 
         const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Game Over!", 32, 0);
 
@@ -335,7 +336,7 @@ void synthrush::GameScene::Render(float dT) {
     } else if (mWonGame && mScreenShowCountdown <= 0) {
         mGameOverCoefficient = Lerp(mGameOverCoefficient, 1, 3 * dT);
         DrawRectangle(0, 0, mGame->screenW, mGame->screenH,
-                      Fade(BLACK, mGameOverCoefficient * 0.7));
+                      Fade(mGame->bgColor, mGameOverCoefficient * 0.7));
 
         const Vector2 textDim = MeasureTextEx(mGame->mainFont, "Level Complete!", 32, 0);
 

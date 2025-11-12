@@ -8,7 +8,7 @@ namespace synthrush {
 
 class Enemy : public Entity {
    public:
-    enum class Type { BLUE_SPHERE, GREEN_BOX };
+    enum class Type { SPHERE, BOX };
 
     Enemy(GameScene *gs, Vector3 pos, int beatN);
     ~Enemy();

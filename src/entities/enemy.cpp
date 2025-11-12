@@ -13,11 +13,11 @@ synthrush::Enemy::Enemy(GameScene *gs, Vector3 pos, int beatN) : beatN(beatN), E
     mEnemyType = (Type)round(util::Random(0, 1));
 
     switch (mEnemyType) {
-        case Type::BLUE_SPHERE:
-            mColor = BLUE;
+        case Type::SPHERE:
+            mColor = {148, 22, 127, 255};
             break;
-        case Type::GREEN_BOX:
-            mColor = GREEN;
+        case Type::BOX:
+            mColor = {249, 172, 83, 255};
     }
 
     mColor.a = 0;
@@ -52,12 +52,12 @@ void synthrush::Enemy::Render(float dT) {
     constexpr int sphereSlices = 7;
 
     switch (mEnemyType) {
-        case Type::BLUE_SPHERE:
+        case Type::SPHERE:
             DrawSphereWires(center, size, sphereRings, sphereSlices, lineColor);
             DrawSphere(center, size, fillColor);
             break;
 
-        case Type::GREEN_BOX:
+        case Type::BOX:
             DrawCubeWires(center, size, size, size, lineColor);
             DrawCube(center, size, size, size, fillColor);
             break;

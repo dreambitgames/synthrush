@@ -35,6 +35,10 @@ class Game {
 
     Font mainFont;
 
+    Color bgColor{48, 3, 80, 255};
+    Color fgColor{233, 52, 121, 255};
+    Color fg2Color{21, 60, 180, 255};
+
    private:
     bool mSceneTransitioning = false;
     Scene *mSceneTransitioningTo = nullptr;
