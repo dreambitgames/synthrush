@@ -48,13 +48,19 @@ void synthrush::GameScene::Initialize() {
     SetSoundVolume(mBeepSound, 0.1);
 
     HideCursor();
+
+    Scene::Initialize();
 }
 
 synthrush::GameScene::~GameScene() {
-    UnloadSound(mMusic);
-    UnloadSound(mGameOverSound);
-    UnloadSound(mBeepSound);
-    UnloadSound(mWinSound);
+    if (mSceneInitialized) {
+        for (Enemy *m : mEnemies) delete m;
+
+        UnloadSound(mMusic);
+        UnloadSound(mGameOverSound);
+        UnloadSound(mBeepSound);
+        UnloadSound(mWinSound);
+    }
 }
 
 void synthrush::GameScene::SpawnEnemyForBeatN(int beatN) {

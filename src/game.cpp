@@ -31,6 +31,10 @@ synthrush::Game::Game(int w, int h, int vw, int vh)
 synthrush::Game::~Game() {
     if (mCurrentScene)
         delete mCurrentScene;
+
+    if (mSceneTransitioningTo)
+        delete mSceneTransitioningTo;
+
     UnloadFont(mainFont);
     CloseWindow();
 
@@ -44,6 +48,7 @@ void synthrush::Game::Update(float dT) {
     if (mSceneTransitioning) {
         if (mSceneTransitioningTime >= mSceneTransitioningMaxTime / 2) {
             ChangeScene(mSceneTransitioningTo);
+            mSceneTransitioningTo = nullptr;
             mSceneTransitioning = false;
         }
 
