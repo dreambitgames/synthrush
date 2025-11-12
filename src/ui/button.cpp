@@ -31,5 +31,5 @@ bool synthrush::ui::Button::Clicked() {
 
     bool hover = CheckCollisionPointRec(
         Vector2Scale(GetMousePosition(), mGame->virtualW / (float)mGame->screenW), rect);
-    return IsMouseButtonDown(MOUSE_BUTTON_LEFT) && hover;
+    return IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && hover;
 }

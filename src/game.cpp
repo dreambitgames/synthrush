@@ -46,11 +46,13 @@ void synthrush::Game::Update(float dT) {
     mCurrentScene->Update(dT);
 
     if (mSceneTransitioning) {
-        if (mSceneTransitioningTime >= mSceneTransitioningMaxTime / 2) {
+        if (mSceneTransitioningTo && mSceneTransitioningTime >= mSceneTransitioningMaxTime / 2) {
             ChangeScene(mSceneTransitioningTo);
             mSceneTransitioningTo = nullptr;
-            mSceneTransitioning = false;
         }
+
+        if (mSceneTransitioningTime >= mSceneTransitioningMaxTime)
+            mSceneTransitioning = false;
 
         mSceneTransitioningTime += dT;
     }
@@ -66,7 +68,7 @@ void synthrush::Game::Render(float dT) {
         if (mSceneTransitioningTime <= mSceneTransitioningMaxTime / 2)
             coeff = 2 * mSceneTransitioningTime / mSceneTransitioningMaxTime;
         else
-            coeff = -2 * mSceneTransitioningTime / mSceneTransitioningMaxTime + 2;
+            coeff = 2 - 2 * mSceneTransitioningTime / mSceneTransitioningMaxTime;
 
         DrawRectangle(0, 0, virtualW, virtualH, Fade(BLACK, coeff));
     }
