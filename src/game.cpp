@@ -38,10 +38,43 @@ synthrush::Game::~Game() {
     CloseAudioDevice();
 }
 
-void synthrush::Game::Update(float dT) { mCurrentScene->Update(dT); }
+void synthrush::Game::Update(float dT) {
+    mCurrentScene->Update(dT);
+
+    if (mSceneTransitioning) {
+        if (mSceneTransitioningTime >= mSceneTransitioningMaxTime / 2) {
+            ChangeScene(mSceneTransitioningTo);
+            mSceneTransitioning = false;
+        }
+
+        mSceneTransitioningTime += dT;
+    }
+}
 
 void synthrush::Game::Render(float dT) {
     BeginDrawing();
     mCurrentScene->Render(dT);
+
+    if (mSceneTransitioning) {
+        float coeff;
+
+        if (mSceneTransitioningTime <= mSceneTransitioningMaxTime / 2)
+            coeff = 2 * mSceneTransitioningTime / mSceneTransitioningMaxTime;
+        else
+            coeff = -2 * mSceneTransitioningTime / mSceneTransitioningMaxTime + 2;
+
+        DrawRectangle(0, 0, virtualW, virtualH, Fade(BLACK, coeff));
+    }
     EndDrawing();
+}
+
+void synthrush::Game::ChangeSceneTransition(Scene *newScene) {
+    if (mSceneTransitioning) {
+        delete newScene;
+        return;
+    }
+
+    mSceneTransitioning = true;
+    mSceneTransitioningTime = 0;
+    mSceneTransitioningTo = newScene;
 }

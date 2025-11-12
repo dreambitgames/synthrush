@@ -16,6 +16,8 @@ class GameScene : public Scene {
     GameScene(Game *game, LevelData &data);
     ~GameScene();
 
+    virtual void Initialize() override;
+
     virtual void Update(float dT) override;
     virtual void Render(float dT) override;
 

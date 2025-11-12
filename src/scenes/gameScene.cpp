@@ -17,7 +17,9 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
     : mLevelData(data),
       Scene(game),
       mRetryBtn(mGame, "Retry", 16, WHITE),
-      mMenuBtn(mGame, "Menu", 16, WHITE) {
+      mMenuBtn(mGame, "Menu", 16, WHITE) {}
+
+void synthrush::GameScene::Initialize() {
     mMenuBtn.centerPosition = {(float)mGame->virtualW / 2, (float)mGame->virtualH - 25};
     mRetryBtn.centerPosition = {(float)mGame->virtualW / 2, (float)mGame->virtualH - 50};
 
@@ -27,7 +29,7 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
     mCam.fovy = 45;
     mCam.projection = CAMERA_PERSPECTIVE;
 
-    for (int i = 0; i < std::min((int)data.beats.size(), 3); ++i) {
+    for (int i = 0; i < std::min((int)mLevelData.beats.size(), 3); ++i) {
         SpawnEnemyForBeatN(i);
         ++mLevelDataBeatIterator;
         if (mLevelDataBeatIterator >= mLevelData.beats.size())
@@ -36,7 +38,7 @@ synthrush::GameScene::GameScene(Game *game, LevelData &data)
 
     mEnemies[0]->SetMarked();
 
-    mMusic = LoadSound(data.audioFile.c_str());
+    mMusic = LoadSound(mLevelData.audioFile.c_str());
     PlaySound(mMusic);
 
     mGameOverSound = LoadSound("assets/sfx/gameOver.wav");
@@ -138,7 +140,7 @@ void synthrush::GameScene::Update(float dT) {
             mGame->EndGame();
 
         if (mRetryBtn.Clicked())
-            mGame->ChangeScene(new GameScene(mGame, mLevelData));
+            mGame->ChangeSceneTransition(new GameScene(mGame, mLevelData));
     }
 
     if (mWonGame && mScreenShowCountdown <= 0 && !mPlayedWinSound) {

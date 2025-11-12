@@ -21,7 +21,10 @@ class Game {
         if (mCurrentScene)
             delete mCurrentScene;
         mCurrentScene = newScene;
+        mCurrentScene->Initialize();
     }
+
+    void ChangeSceneTransition(Scene *newScene);
 
     bool IsRunning() { return mRunning; }
 
@@ -33,6 +36,11 @@ class Game {
     Font mainFont;
 
    private:
+    bool mSceneTransitioning = false;
+    Scene *mSceneTransitioningTo = nullptr;
+    float mSceneTransitioningTime = 0;
+    const float mSceneTransitioningMaxTime = 1.0f;
+
     bool mRunning = true;
     Scene *mCurrentScene = nullptr;
 };
